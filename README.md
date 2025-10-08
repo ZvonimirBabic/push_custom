@@ -262,7 +262,7 @@ and
 
 ## Manual testing and debugging
 
-Take a look at the [`tools/`](https://github.com/ben-xD/push/tree/main/tools/) folder in the GitHub repository. It contains links to resources and tools to help you debug quickly.
+Take a look at the [`tool/`](https://github.com/ben-xD/push/tree/main/tool/) folder in the GitHub repository. It contains links to resources and tools to help you debug quickly.
 
 ## Architecture
 
