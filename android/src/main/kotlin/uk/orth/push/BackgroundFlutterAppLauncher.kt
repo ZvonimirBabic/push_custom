@@ -21,14 +21,13 @@ import uk.orth.push.serialization.PushHostApi
  * creates a MethodChannel to communicate with the Flutter application.
  *
  * @param context
- * @param broadcastReceiver The FirebaseMessagingReceiver which received the message
- * @param intent An intent containing a RemoteMessage passed straight from
- * FirebaseMessagingReceiver
+ * @param intent An intent containing a RemoteMessage passed from MessagingService
+ * @param onComplete Callback to invoke when processing is complete
  */
 class BackgroundFlutterAppLauncher(
     context: Context,
-    private val broadcastReceiver: FirebaseMessagingReceiver,
     intent: Intent,
+    private val onComplete: (() -> Unit)? = null,
 ) {
     private val remoteMessage: RemoteMessage = RemoteMessage((intent.extras)!!)
     private val flutterEngine: FlutterEngine = FlutterEngine(context, null)
@@ -53,10 +52,10 @@ class BackgroundFlutterAppLauncher(
         Log.i(
             TAG,
             "Manually launched Flutter application has finished processing message. " +
-                "Destroying FlutterEngine and finishing asynchronous Broadcast Receiver",
+                "Destroying FlutterEngine and finishing asynchronous MessagingService",
         )
         flutterEngine.destroy()
-        broadcastReceiver.finish()
+        onComplete?.invoke()
     }
 
     companion object {
