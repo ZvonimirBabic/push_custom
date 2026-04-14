@@ -1,62 +1,32 @@
-package uk.orth.push
+class BackgroundFlutterAppLauncher(
+    private val context: Context,
+    private val data: Map<String, String>,
+) {
 
-import android.app.ActivityManager
-import android.content.Context
-import android.util.Log
-import com.google.firebase.messaging.FirebaseMessagingService
-import com.google.firebase.messaging.RemoteMessage
+    private val flutterEngine = FlutterEngine(context)
 
-class MessagingService : FirebaseMessagingService() {
+    private val pushHostHandlers =
+        PushHostHandlers(context, flutterEngine.dartExecutor.binaryMessenger)
 
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d(TAG, "onMessage2: $remoteMessage")
-        if (remoteMessage.data.isEmpty()) {
-            return
+    init {
+        Log.e("FCM_DEBUG", "🚀 Starting Flutter engine (terminated state)")
+
+        pushHostHandlers.setupForBackgroundNotificationProcessing(data) {
+            finish()
         }
 
-        handleMessage(applicationContext, remoteMessage)
+        PushHostApi.setUp(
+            flutterEngine.dartExecutor.binaryMessenger,
+            pushHostHandlers
+        )
+
+        flutterEngine.dartExecutor.executeDartEntrypoint(
+            DartExecutor.DartEntrypoint.createDefault()
+        )
     }
 
-    override fun onNewToken(token: String) {
-        super.onNewToken(token)
-        Log.d(TAG, "New token: $token")
-    }
-
-    private fun handleMessage(context: Context, remoteMessage: RemoteMessage) {
-        val data = remoteMessage.data
-
-        when {
-            isApplicationInForeground(context) -> {
-                PushHostHandlers.sendMessageToFlutterApp(context, data)
-            }
-
-            PushPlugin.isMainActivityRunning -> {
-                PushHostHandlers.sendBackgroundMessageToFlutterApp(context, data)
-            }
-
-            else -> {
-                BackgroundFlutterAppLauncher(context, data)
-            }
-        }
-    }
-
-    private fun isApplicationInForeground(context: Context): Boolean {
-        val activityManager =
-            context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-
-        val processes = activityManager.runningAppProcesses ?: return false
-
-        for (process in processes) {
-            if (process.importance ==
-                ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-            ) {
-                return true
-            }
-        }
-        return false
-    }
-
-    companion object {
-        private const val TAG = "MyFirebaseMsgService"
+    private fun finish() {
+        Log.e("FCM_DEBUG", "🛑 Flutter finished, destroying engine")
+        flutterEngine.destroy()
     }
 }
