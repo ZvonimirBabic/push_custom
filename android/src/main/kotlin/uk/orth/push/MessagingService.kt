@@ -9,6 +9,7 @@ import com.google.firebase.messaging.RemoteMessage
 class MessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        Log.d(TAG, "onMessage: $remoteMessage")
         if (remoteMessage.data.isEmpty()) {
             return
         }
