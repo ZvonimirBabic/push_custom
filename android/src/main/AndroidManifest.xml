@@ -2,14 +2,6 @@
     package="uk.orth.push">
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application>
-        <receiver
-            android:name=".FirebaseMessagingReceiver"
-            android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </receiver>
         <service
             android:name=".MessagingService"
             android:exported="false">
